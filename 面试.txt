@@ -296,3 +296,10 @@ java代理总结
 		3.通过反射机智获取代理类的构造方法，方法签名为getConstructor(InvocationHandler.class)
 		4.通过构造函数获得代理对象并将自定义的InvocationHandler实例对象为参数传入
 	静态代理：
+
+锁膨胀的过程：
+	偏向锁：通过标示偏向标识，标识Mark Word中偏向线程的ID与线程ID对比如果mark Word中偏向锁标识中的线程ID与当前线程ID一致，
+		直接执行同步代码，如果线程获取锁时Mark work中线程ID不一致，就尝试CAS去修改偏向锁的线程ID，如果CAS成功直接执行
+		同步代码块，如果失败就会将偏向锁挂起升级为轻量锁。
+
+	轻量锁：
