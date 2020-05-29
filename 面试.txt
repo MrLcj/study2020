@@ -328,3 +328,27 @@ ThreadFactory
 2) Broker端使用zookeeper用来注册broker信息,已经监测partition leader存活性.
 
 3) Consumer端使用zookeeper用来注册consumer信息,其中包括consumer消费的partition列表等,同时也用来发现broker列表,并和partition leader建立socket连接，并获取消息。
+
+
+使用消息队列的好处？
+解耦：允许我们独立的扩展或修改队列两边的处理过程。
+可恢复性：即使一个处理消息的进程挂掉，加入队列中的消息仍然可以在系统恢复后被处理。
+缓冲：有助于解决生产消息和消费消息的处理速度不一致的情况。
+灵活性&峰值处理能力：不会因为突发的超负荷的请求而完全崩溃，消息队列能够使关键组件顶住突发的访问压力。
+异步通信：消息队列允许用户把消息放入队列但不立即处理它。
+
+（1）NIO的工作流程步骤：
+
+1.首先是先创建ServerSocketChannel 对象，和真正处理业务的线程池
+
+2.然后给刚刚创建的ServerSocketChannel 对象进行绑定一个对应的端口，然后设置为非阻塞
+
+3.然后创建Selector对象并打开，然后把这Selector对象注册到ServerSocketChannel 中，并设置好监听的事件，监听 SelectionKey.OP_ACCEPT
+
+4.接着就是Selector对象进行死循环监听每一个Channel通道的事件，循环执行 Selector.select() 方法，轮询就绪的 Channel
+
+5.从Selector中获取所有的SelectorKey（这个就可以看成是不同的事件），如果SelectorKey是处于 OP_ACCEPT 状态，说明是新的客户端接入，调用 ServerSocketChannel.accept 接收新的客户端。
+
+6.然后对这个把这个接受的新客户端的Channel通道注册到ServerSocketChannel上，并且把之前的OP_ACCEPT 状态改为SelectionKey.OP_READ读取事件状态，并且设置为非阻塞的，然后把当前的这个SelectorKey给移除掉，说明这个事件完成了
+
+7.如果第5步的时候过来的事件不是OP_ACCEPT 状态，那就是OP_READ读取数据的事件状态，然后调用本文章的上面的那个读取数据的机制就可以了
